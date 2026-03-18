@@ -1,0 +1,297 @@
+import sys
+sys.path.insert(0, 'src')
+import polib, os
+
+po = polib.pofile('assets/text/ui/en.po', encoding='utf-8')
+existing = {e.msgid for e in po if e.msgid}
+
+new_entries = [
+    # Dashboard - IconButton tips (content strings)
+    ("🏠一条龙软件说明书>>", "🏠OneDragon Software Manual>>"),
+    ("⭐点击收藏关注项目动态", "⭐Click to star and follow project updates"),
+    ("📕遇到问题? 查看更详细文档教程", "📕Having issues? View detailed documentation"),
+    ("🔥立刻点击加入火辣官方社区>>>>", "🔥Click to join the official community>>>>"),
+    ("🏅官方店铺???", "🏅Official Store???"),
+    ("💵限时劲爆特惠仅需0元点击马上加入会员>>", "💵Limited time: FREE membership! Click to join>>"),
+    # Dashboard - launch button (with emoji)
+    ("启动一条龙🚀", "Launch OneDragon🚀"),
+    # Dashboard - info bar messages
+    ("稍安勿躁~", "Hang tight~"),
+    ("到[设置-资源下载]更新吧~", "Go to [Settings - Resource Download] to update~"),
+    # Config Info tab
+    ("当前仅用于信息展示", "For display purposes only"),
+    ("角色顺序 朱青妮 跟 青妮朱 是一样的", "Character order doesn't matter (e.g. A-B-C = C-B-A)"),
+    ("基础信息", "Basic Info"),
+    ("作者", "Author"),
+    ("制作不易 可以到作者主页点个赞", "It takes effort to create. Feel free to like on the author's page"),
+    ("版本", "Version"),
+    ("简介", "Description"),
+    ("适用配队", "Applicable Teams"),
+    ("感谢", "Thanks to"),
+    ("配队", "Team Composition"),
+    # Agent names (AgentEnum.agent_name) - used in team dropdowns
+    ("安比", "Anby"),
+    ("安东", "Anton"),
+    ("本", "Ben"),
+    ("比利", "Billy"),
+    ("可琳", "Corin"),
+    ("艾莲", "Ellen"),
+    ("格莉丝", "Grace"),
+    ("珂蕾妲", "Koleda"),
+    ("露西", "Lucy"),
+    ("莱卡恩", "Von Lycaon"),
+    ("猫又", "Nekomata"),
+    ("妮可", "Nicole"),
+    ("派派", "Piper"),
+    ("丽娜", "Rina"),
+    ("11号", "Soldier 11"),
+    ("苍角", "Soukaku"),
+    ("朱鸢", "Zhu Yuan"),
+    ("青衣", "Qingyi"),
+    ("简", "Jane Doe"),
+    ("赛斯", "Seth Lowell"),
+    ("凯撒", "Caesar King"),
+    ("柏妮思", "Burnice White"),
+    ("柳", "Yanagi"),
+    ("莱特", "Lighter"),
+    ("悠真", "Harumasa"),
+    ("雅", "Miyabi"),
+    ("耀嘉音", "Astra Yao"),
+    ("伊芙琳", "Evelyn"),
+    ("零号安比", "Soldier 0: Anby"),
+    ("波可娜", "Pulchra"),
+    ("扳机", "Trigger"),
+    ("薇薇安", "Vivian"),
+    ("雨果", "Hugo"),
+    ("仪玄", "Yixuan"),
+    ("潘引壶", "Pan Yinhu"),
+    ("橘福福", "Ju Fufu"),
+    ("浮波柚叶", "Yuzuha"),
+    ("爱丽丝", "Alice"),
+    ("席德", "Seed"),
+    ("奥菲丝", "Orphie"),
+    ("卢西娅", "Lucia"),
+    ("真斗", "Manato"),
+    ("伊德海莉", "Yidhari"),
+    ("琉音", "Dialyn"),
+    ("般岳", "Banyue"),
+    ("照", "Zhao"),
+    ("千夏", "Sunna"),
+    ("叶瞬光", "Yeshunguang"),
+    ("爱芮", "Aria"),
+    # Gamepad install progress messages
+    ("正在安装...安装过程可能需要安装驱动 正常安装即可", "Installing... Driver installation may be required. This is normal."),
+    ("未配置UV", "UV not configured"),
+    # Route operation editor dialog (raw Qt)
+    ("编辑路线操作", "Edit Route Operations"),
+    ("序号", "No."),
+    ("操作类型", "Action Type"),
+    ("数据1", "Data 1"),
+    ("数据2", "Data 2"),
+    ("添加操作", "Add Action"),
+    ("删除选中", "Delete Selected"),
+    ("上移", "Move Up"),
+    ("下移", "Move Down"),
+    ("保存", "Save"),
+    ("确认删除", "Confirm Delete"),
+    ("确定要删除第 %d 个操作吗？", "Delete operation #%d?"),
+    ("数据错误", "Data Error"),
+    ("第 %d 个操作的数据不完整", "Data for operation #%d is incomplete"),
+    ("第 %d 个操作的坐标数据必须是数字", "Coordinates for operation #%d must be numbers"),
+    # World patrol route display
+    ("步", "steps"),
+    ("传送点", "Teleport"),
+    # Game settings placeholder
+    ("如果你不知道这是做什么的 请不要填写", "Leave blank if you don't know what this does"),
+    # In-game team option label
+    ("游戏内配队", "In-Game Team"),
+    # Life on Line run record
+    ("完成次数 当日: %d", "Completions today: %d"),
+    # Battle state debug display column headers
+    ("[触发器]", "[Trigger]"),
+    ("[条件集]", "[Conditions]"),
+    ("[持续时间]", "[Duration]"),
+    # Dialog buttons / shared UI
+    ("警告", "Warning"),
+    ("确定", "OK"),
+    ("取消", "Cancel"),
+    ("删除确认", "Confirm Delete"),
+    ("即将删除该配置", "This configuration will be deleted"),
+    # Charge plan dialogs
+    ("是否删除所有已完成的体力计划？", "Delete all completed stamina plans?"),
+    ("是否删除所有体力计划？", "Delete all stamina plans?"),
+    # Lost Void run record status
+    ("已完成悬赏委托 如错误可重置", "Bounty tasks completed. Reset if incorrect."),
+    ("已完成刷取周期奖励 如错误可重置", "Weekly rewards completed. Reset if incorrect."),
+    ("已完成刷取业绩 如错误可重置", "Eval points completed. Reset if incorrect."),
+    ("通关次数 本日: %d, 本周: %d", "Clears — Today: %d, This week: %d"),
+    # Suibian Temple (Casual Watch) bangboo nest price card
+    ("邦巢-最低购买价格", "Bangboo Nest - Min Purchase Price"),
+    ("游历", "Adventure"),
+    ("制造", "Craft"),
+    ("售卖", "Sell"),
+    # OneDragon run interface
+    ("暂不支持设置", "does not support settings"),
+    # Shiyu Defense labels (already go through gt() in list comprehension)
+    ("预备配队", "Predefined Team"),
+    ("剧变节点", "Calamity Node"),
+    # Home interface background error messages
+    ("版本海报异步获取失败", "Version poster async fetch failed"),
+    ("静态背景异步获取失败", "Static background async fetch failed"),
+    ("动态背景异步获取失败", "Dynamic background async fetch failed"),
+    # World patrol route UI
+    ("新建路线列表", "New Route List"),
+    ("请输入列表名称:", "Enter list name:"),
+    ("保存路线列表失败", "Failed to save route list"),
+    ("删除路线列表失败", "Failed to delete route list"),
+    ("当前区域没有可用路线", "No routes available in current area"),
+    # Predefined Team tab UI strings
+    ("代理人", "Agent"),
+    ("预备编队", "Predefined Team"),
+    ("使用默认队伍名称出现错选时 可更改名字解决", "If default team names cause wrong selection, rename them to fix it"),
+    ("本页代理人可在游戏助手中自动识别，设置仅作用于避免式舆防卫战选择配队冲突", "Agents here are auto-detected in Game Assistant. Settings prevent team selection conflicts in Shiyu Defense."),
+    # Auto battle config file names (shown in dropdowns, go through ConfigItem -> gt())
+    ("全配队通用", "Universal (All Teams)"),
+    ("专属配队-艾莲", "Dedicated - Ellen"),
+    ("专属配队-莱卡恩", "Dedicated - Von Lycaon"),
+    ("专属配队-莱特", "Dedicated - Lighter"),
+    ("击破站场-强攻速切", "Stun-Main: Attack Quick Swap"),
+    ("异常站场-强攻速切", "Anomaly-Main: Attack Quick Swap"),
+    ("强攻站场-击破支援速切", "Attack-Main: Stun+Support Quick Swap"),
+    ("自动守护", "Auto Guard"),
+    # AgentTypeEnum values - agent role types
+    ("强攻", "Attack"),
+    ("击破", "Stun"),
+    ("支援", "Support"),
+    ("防护", "Defense"),
+    ("异常", "Anomaly"),
+    ("命破", "Rupture"),
+    ("未知", "Unknown"),
+    # DmgTypeEnum values - damage types
+    ("电属性", "Electric"),
+    ("以太属性", "Ether"),
+    ("物理属性", "Physical"),
+    ("火属性", "Fire"),
+    ("冰属性", "Ice"),
+    # Notorious Hunt monsters (ConfigItem label → gt())
+    ("初生死路屠夫", "Newborn Dead End Butcher"),
+    ("未知复合侵蚀体", "Unknown Corruption Complex"),
+    ("冥宁芙·双子", "Twin Marionettes"),
+    ("「霸主侵蚀体·庞培」", "Corrupted Overlord - Pompey"),
+    ("牲鬼·布林格", "Sacrifice - Bringer"),
+    ("秽息司祭", "Miasma Priest"),
+    ("彷徨猎手", "Wandering Hunter"),
+    ("魇缚者·叶释渊", "Ye Shiyuan the Thrall"),
+    # NotoriousHuntLevelEnum labels
+    ("默认等级", "Default Level"),
+    ("等级Lv.65", "Level Lv.65"),
+    ("等级Lv.60", "Level Lv.60"),
+    ("等级Lv.50", "Level Lv.50"),
+    ("等级Lv.40", "Level Lv.40"),
+    ("等级Lv.30", "Level Lv.30"),
+    # NotoriousHuntBuffEnum labels
+    ("第一个BUFF", "BUFF 1"),
+    ("第二个BUFF", "BUFF 2"),
+    ("第三个BUFF", "BUFF 3"),
+    # Notorious Hunt interface run card
+    ("已运行次数", "Times Run"),
+    ("计划次数", "Planned Times"),
+    # LostVoidRegionType enum labels
+    ("入口", "Entry"),
+    ("战斗-鸣徽", "Combat - Resonium"),
+    ("战斗-武备", "Combat - Gear"),
+    ("战斗-硬币", "Combat - Coins"),
+    ("挑战-无伤", "Challenge - Flawless"),
+    ("挑战-限时", "Challenge - Time Trial"),
+    ("挑战-收割", "Challenge - Harvest"),
+    ("偶遇事件", "Random Event"),
+    ("代价之间", "Price Difference"),
+    ("休憩调息", "Rest & Recovery"),
+    ("邦布商店", "Bangboo Store"),
+    ("挚交会谈", "Friendly Meeting"),
+    ("战斗-道中危机", "Combat - Midway Crisis"),
+    ("战斗-终结之役", "Combat - Final Battle"),
+    # LostVoidPeriodBuffNo enum labels
+    ("第一个", "First"),
+    ("第二个", "Second"),
+    ("第三个", "Third"),
+    # LostVoidBuyOnlyPriority enum labels
+    ("刷新0次", "0 Refreshes"),
+    ("刷新1次(50硬币)", "1 Refresh (50 Coins)"),
+    ("刷新2次(100硬币)", "2 Refreshes (100 Coins)"),
+    ("刷新3次(200硬币)", "3 Refreshes (200 Coins)"),
+    ("刷新4次(300硬币)", "4 Refreshes (300 Coins)"),
+    ("一直刷新", "Always Refresh"),
+    # HollowZeroChallengePathFinding enum labels
+    ("默认", "Default"),
+    ("速通", "Speed Run"),
+    ("自定义", "Custom"),
+    # Shared config UI buttons (go through gt() directly)
+    ("选择已有", "Select Existing"),
+    ("新建", "New"),
+    ("复制", "Copy"),
+    ("关闭", "Close"),
+    ("当前为默认配置，点击复制后可修改", "This is the default config. Click Copy to make changes."),
+    # Lost Void challenge config - SettingCardBase titles/contents
+    ("配置名称", "Config Name"),
+    ("默认配置复制后可修改", "Copy the default config to modify it"),
+    ("当期UP代理人", "Current UP Agent"),
+    ("每周第1次 优先选择包含当期UP的编队 覆盖预备编队选项", "1st run per week: prioritize team with current UP agent (overrides predefined team)"),
+    ("自动战斗", "Auto Battle"),
+    ("预备编队使用游戏内配队时生效", "Only applies when predefined team uses in-game team"),
+    ("追新模式", "Chase New Mode"),
+    ("优先选择未满级的调查战略，开启后将禁用下方的调查战略选项", "Prioritize non-maxed strategies. Disables the strategy option below."),
+    ("调查战略", "Investigation Strategy"),
+    ("周期增益", "Period Buff"),
+    ("商店-使用金币购买", "Shop - Buy with Gold"),
+    ("想不买东西速刷时或在刷取成就:「空洞金融大亨」时关闭", "Turn off for speed runs or when farming achievement: 'Void Finance Tycoon'"),
+    ("商店-使用血量购买", "Shop - Buy with HP"),
+    ("练度低情况下 仅建议绝境武备开启", "Only recommended for Extreme Gear with a weak build"),
+    ("血量 ≥ x% 时 才会进行购买", "Only buy when HP ≥ x%"),
+    ("优先选择NEW!藏品", "Prioritize NEW! Items"),
+    ("最高优先级 但不保证识别正确", "Highest priority, but recognition may not always be accurate"),
+    ("只购买第一优先级", "Buy Priority 1 Only"),
+    ("刷新多少次数内 只购买第一优先级内的藏品", "Only buy priority 1 items within this many refreshes"),
+    ("只购买第二优先级", "Buy Priority 2 Only"),
+    ("刷新多少次数内 只购买第二优先级内的藏品", "Only buy priority 2 items within this many refreshes"),
+    ("藏品第一优先级", "Item Priority 1"),
+    ("藏品第二优先级 (无刷新时考虑)", "Item Priority 2 (when no refresh available)"),
+    ("区域类型优先级", "Region Type Priority"),
+    # Withered Domain challenge config
+    ("目标配队", "Target Team"),
+    ("按照自动战斗配置 选择角色位置", "Select role positions per auto battle config"),
+    ("仅购买优先级", "Buy Priority Only"),
+    ("邦布商人购买时只购买符合优先级的", "Only buy matching-priority items from Bangboo merchant"),
+    ("寻路方式", "Pathfinding Method"),
+    ("一步可达时前往", "Go if reachable in 1 step"),
+    ("优先途经点", "Preferred Waypoints"),
+    ("避免途经点", "Avoided Waypoints"),
+    ("奖励优先级", "Reward Priority"),
+    ("选项优先级", "Option Priority"),
+    # Investigation strategy names (from lost_void_investigation_strategy.yml)
+    ("攻其不备战略", "Ambush Strategy"),
+    ("抢占先机战略", "First Strike Strategy"),
+    ("迅刃连击战略", "Swift Blade Combo Strategy"),
+    ("鸣徽狂热战略", "Resonium Passion Strategy"),
+    ("秘宝猎人战略", "Treasure Hunter Strategy"),
+    ("全副武装战略", "Fully Armed Strategy"),
+    ("经商友好战略", "Entrepreneur's Strategy"),
+    ("养精蓄锐战略", "Recuperation Strategy"),
+    ("狡黠盗洞战略", "Cunning Burglar Strategy"),
+    ("固守阵线战略", "Hold the Line Strategy"),
+    ("舍生陷阵战略", "Sacrifice Charge Strategy"),
+    ("呼朋引伴战略", "Rally Allies Strategy"),
+]
+
+added = 0
+for msgid, msgstr in new_entries:
+    if msgid not in existing:
+        po.append(polib.POEntry(msgid=msgid, msgstr=msgstr))
+        existing.add(msgid)
+        added += 1
+    # skip print to avoid console encoding issues
+
+po.save('assets/text/ui/en.po')
+po.save_as_mofile('assets/text/output/en/LC_MESSAGES/ui.mo')
+mo_size = os.path.getsize('assets/text/output/en/LC_MESSAGES/ui.mo')
+print(f"\nAdded {added} entries. Total: {len(po)}. .mo size: {mo_size} bytes")
