@@ -92,6 +92,7 @@ privacy_report_*.json
 merge_po.py
 compile_mo.py
 check_missing.py
+<<<<<<< HEAD
 check_missing2.py
 test_i18n.py
 test_i18n_output.txt
@@ -101,3 +102,8 @@ verify_agents.py
 verify_agents.txt
 scan_chinese.py
 scan_chinese_report.txt
+=======
+test_i18n.py
+test_i18n_output.txt
+missing_nav.txt
+>>>>>>> 2aa37ab34e9bf401c8250401fb1ab77476d5985f

@@ -3490,6 +3490,7 @@ msgstr "Weekly reward farming complete. Reset if incorrect."
 
 msgid "已完成刷取业绩 如错误可重置"
 msgstr "Evaluation farming complete. Reset if incorrect."
+<<<<<<< HEAD
 
 msgid "感谢"
 msgstr "Thanks to"
@@ -3835,3 +3836,5 @@ msgstr "Sacrifice Charge Strategy"
 
 msgid "呼朋引伴战略"
 msgstr "Rally Allies Strategy"
+=======
+>>>>>>> 2aa37ab34e9bf401c8250401fb1ab77476d5985f
